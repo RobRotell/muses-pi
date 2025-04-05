@@ -103,7 +103,7 @@ def get_latest_saved_image():
     
     return None
 
-def update_display(image_path, saturation=1):
+def update_display(image_path, saturation=0.8):
     """Display an image on the e-ink screen"""
     if not image_path:
         logging.warning("No valid image found. Skipping update.")
@@ -152,11 +152,18 @@ def button_listener():
                 refresh_image()
 
 def auto_refresh():
-    """Automatically refresh the display every 4 hours"""
+    """Automatically refresh the display on the hour"""
     while True:
+        now = datetime.now()
+        seconds_until_next_hour = (
+            60 - now.minute
+        ) * 60 - now.second # time until next top of the hour
+
+        logging.info(f"Sleeping for {seconds_until_next_hour} seconds until the next top of the hour...")
+        time.sleep(seconds_until_next_hour)
+
+        logging.info("Top of the hour reached. Refreshing image ...")
         refresh_image()
-        logging.info("Sleeping for 4 hours...")
-        time.sleep(4 * 60 * 60)  # Sleep for 4 hours
 
 # Start the button listener in a separate thread
 button_thread = threading.Thread(target=button_listener, daemon=True)
